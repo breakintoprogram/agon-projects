@@ -19,6 +19,14 @@ The resultant Intel Hex file can be converted to an AGON executable bin file by 
 	- `Hello World 24`: A simple example of an ADL executable (24-bit Z80)
 	- `Memory Dump`: A memory hex-dump to screen utility 
 - `C`:
+	- `Hello World`: A simple example of a C executable (24-bit 280)
+
+The C code is currently a work-in-progress. It currently passes to main the values:
+
+- `argc`: 1
+- `argv`: A pointer to a zero-terminated string
+
+Plan is to make this C-compliant, where argv is an array of pointers to parameters, with argc containing the argument count.
 
 ### The MOS executable format
 
@@ -38,7 +46,7 @@ Either add the mos/src folder to the include folder in the project settings or c
 
 - Each project is designed to assemble/compile in debug mode at address &040000.
 - Once loaded, it can be executed using the MOS command `run`.
-- Additional parameters can be specified after the command, for example: `run memdump &100`
+- Additional parameters can be specified. for example: `run &40000 &100`. Note that you must specify the address of the executable in memory in this instance.	
 
 ### Creating MOS Binary Executable Files
 

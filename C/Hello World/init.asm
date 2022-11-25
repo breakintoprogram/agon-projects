@@ -2,11 +2,15 @@
 ; Title:	Hello World - Initialisation Code
 ; Author:	Dean Belfield
 ; Created:	22/11/2022
-; Last Updated:	22/11/2022
+; Last Updated: 25/11/2022
 ;
 ; Modinfo:
+; 25/11/2022:	Added parameter parsing; now accepts CR or NUL as end of string markers
 
 			SEGMENT CODE
+			
+			XREF	__low_bss
+			XREF	__len_bss
 			
 			XREF	_main
 			
@@ -131,8 +135,10 @@ $$:			PUSH	BC			; Stack ARGC
 ;
 _get_token:		LD	C, 0			; Initialise length
 $$:			LD	A, (HL)			; Get the character from the parameter string
-			OR	A			; Exit if 0 (end of parameter string)
+			OR	A			; Exit if 0 (end of parameter string in MOS)
 			RET 	Z
+			CP	13			; Exit if CR (end of parameter string in BBC BASIC)
+			RET	Z
 			CP	' '			; Exit if space (end of token)
 			RET	Z
 			INC	HL			; Advance to next character
@@ -146,8 +152,6 @@ $$:			LD	A, (HL)			; Get the character from the parameter string
 ; - HL: Address of next none-space character
 ;
 _skip_spaces:		LD	A, (HL)			; Get the character from the parameter string
-			OR	A			; Exit if 0 (end of parameter string)
-			RET	Z
 			CP	' '			; Exit if not space
 			RET	NZ
 			INC	HL			; Advance to next character

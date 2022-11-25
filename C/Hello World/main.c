@@ -15,10 +15,15 @@
 //
 // TODO: Need to make this C compliant at some point
 //
-int main(int argc, char * argv) {
+int main(int argc, char * argv[]) {
+	int	i;
+	
 	printf("Hello World\n\r");
 	printf("Arguments:\n\r");
 	printf("- argc: %d\n\r", argc);
-	printf("- argv: %s\n\r", argv);
+	
+	for(i = 0; i < argc; i++) {
+		printf("- argv[%d]: %s\n\r", i, argv[i]);
+	}
 	return 0;
 }

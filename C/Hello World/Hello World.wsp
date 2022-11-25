@@ -14,23 +14,23 @@ ptn_Child4=Document-3
 ptn_Child1=ViewFrame-0
 
 [WorkState_v1_2.Frames.ChildFrames.Document-0.ViewFrame-0]
-DocPathName=.\main.c
-DocTemplateIndex=0
-DocumentString=IDE.Document
-IsActiveChildFrame=True
-IsFrameVisible=True
-WindowPlacement=MCAAAAAACAAAAAAADAAAAAAAPPPPPPPPPPPPPPPPIPPPPPPPBOPPPPPPEJAAAAAAMGAAAAAACGFAAAAANDCAAAAA
-
-[WorkState_v1_2.Frames.ChildFrames.Document-1]
-ptn_Child1=ViewFrame-0
-
-[WorkState_v1_2.Frames.ChildFrames.Document-1.ViewFrame-0]
 DocPathName=.\Hello_World_Debug.linkcmd
 DocTemplateIndex=0
 DocumentString=IDE.Document
 IsActiveChildFrame=False
 IsFrameVisible=True
-WindowPlacement=MCAAAAAAAAAAAAAABAAAAAAAPPPPPPPPPPPPPPPPIPPPPPPPBOPPPPPPKBAAAAAAKBAAAAAAMOEAAAAAPOBAAAAA
+WindowPlacement=MCAAAAAAAAAAAAAABAAAAAAAPPPPPPPPPPPPPPPPIPPPPPPPBOPPPPPPCIAAAAAACIAAAAAAAFFAAAAADFCAAAAA
+
+[WorkState_v1_2.Frames.ChildFrames.Document-1]
+ptn_Child1=ViewFrame-0
+
+[WorkState_v1_2.Frames.ChildFrames.Document-1.ViewFrame-0]
+DocPathName=.\main.c
+DocTemplateIndex=0
+DocumentString=IDE.Document
+IsActiveChildFrame=False
+IsFrameVisible=True
+WindowPlacement=MCAAAAAAAAAAAAAABAAAAAAAPPPPPPPPPPPPPPPPIPPPPPPPBOPPPPPPANAAAAAAANAAAAAAPPDAAAAADLCAAAAA
 
 [WorkState_v1_2.Frames.ChildFrames.Document-2]
 ptn_Child1=ViewFrame-0
@@ -41,16 +41,16 @@ DocTemplateIndex=0
 DocumentString=IDE.Document
 IsActiveChildFrame=False
 IsFrameVisible=True
-WindowPlacement=MCAAAAAAAAAAAAAABAAAAAAAPPPPPPPPPPPPPPPPIPPPPPPPBOPPPPPPOEAAAAAAOEAAAAAAACFAAAAADCCAAAAA
+WindowPlacement=MCAAAAAAAAAAAAAABAAAAAAAPPPPPPPPPPPPPPPPIPPPPPPPBOPPPPPPIGAAAAAAIGAAAAAAHJDAAAAALECAAAAA
 
 [WorkState_v1_2.Frames.ChildFrames.Document-3]
 ptn_Child1=ViewFrame-0
 
 [WorkState_v1_2.Frames.ChildFrames.Document-3.ViewFrame-0]
-DocPathName=..\..\..\MOS\SGUXOP~3\init_params_f92.asm
+DocPathName=.\Hello_World_Release.linkcmd
 DocTemplateIndex=0
 DocumentString=IDE.Document
-IsActiveChildFrame=False
+IsActiveChildFrame=True
 IsFrameVisible=True
-WindowPlacement=MCAAAAAAAAAAAAAABAAAAAAAPPPPPPPPPPPPPPPPIPPPPPPPBOPPPPPPMJAAAAAAMJAAAAAALMDAAAAAPHCAAAAA
+WindowPlacement=MCAAAAAACAAAAAAADAAAAAAAPPPPPPPPPPPPPPPPIPPPPPPPBOPPPPPPOEAAAAAAOEAAAAAAACFAAAAADCCAAAAA
 

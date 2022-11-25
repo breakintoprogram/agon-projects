@@ -21,12 +21,10 @@ The resultant Intel Hex file can be converted to an AGON executable bin file by 
 - `C`:
 	- `Hello World`: A simple example of a C executable (24-bit 280)
 
-The C code is currently a work-in-progress. It currently passes to main the values:
+The C code passes the following values to main
 
-- `argc`: 1
-- `argv`: A pointer to a zero-terminated string
-
-Plan is to make this C-compliant, where argv is an array of pointers to parameters, with argc containing the argument count.
+- `argc`: Number of arguments
+- `argv`: An array of pointers to the arguments, the first argument being the executable's name
 
 ### The MOS executable format
 

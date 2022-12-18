@@ -2,10 +2,11 @@
 ; Title:	Hello World - Initialisation Code
 ; Author:	Dean Belfield
 ; Created:	06/11/2022
-; Last Updated:	17/12/2022
+; Last Updated:	18/12/2022
 ;
 ; Modinfo:
 ; 17/12/2022:	Added parameter processing
+; 18/12/2022:	SPS now set to 8000h (fix suggested by Reinhard Schu)
 
 			SEGMENT __VECTORS
 		
@@ -57,11 +58,17 @@ _exec_name:		DB	"HELLO.BIN", 0			; The executable name, only used in argv
 ;
 ; And the code follows on immediately after the header
 ;
-_start:			PUSH		AF			; Preserve the registers
+_start:			PUSH.LIL	IY			; Preserve IY
+
+			LD		IY, 0			; Preserve SPS
+			ADD		IY, SP
+			PUSH.LIL	IY
+			LD		SP, 8000h		; And set to 8000h, top of the MOS command area
+	
+			PUSH		AF			; Preserve the rest of the registers
 			PUSH.LIL	BC
 			PUSH.LIL	DE
 			PUSH.LIL	IX
-			PUSH.LIL	IY
 
 			LD		A, MB			; Segment base
 			LD		IX, argv_ptrs		; The argv array pointer address
@@ -71,14 +78,18 @@ _start:			PUSH		AF			; Preserve the registers
 			POP.LIL		IX			; IX: argv
 			LD		B, 0			;  C: argc
 			CALL		_main			; Start user code
-			
-			POP.LIL		IY			; Restore registers
-			POP.LIL		IX
+
+			POP.LIL		IX			; Restore the registers
 			POP.LIL		DE
 			POP.LIL		BC
 			POP		AF
-			RET.L
-						
+
+			POP.LIL		IY			; Get the preserved SPS
+			LD		SP, IY			; Restore the SP
+			
+			POP.LIL		IY			; Restore IY
+			RET.L					; Return to MOS
+			
 ; Parse the parameter string into a C array
 ; Parameters
 ; -   A: Segment base

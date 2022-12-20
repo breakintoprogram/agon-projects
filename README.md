@@ -20,11 +20,17 @@ The resultant Intel Hex file can be converted to an AGON executable bin file by 
 	- `Memory Dump`: A memory hex-dump to screen utility 
 - `C`:
 	- `Hello World`: A simple example of a C executable (24-bit 280)
+	- `Disassembler`: A fully featured eZ80 disassembler
 
 The C code passes the following values to main
 
 - `argc`: Number of arguments
 - `argv`: An array of pointers to the arguments, the first argument being the executable's name
+
+The ASM code passes the arguments in a slightly different way:
+
+- `IX`: Pointer to array of pointers to the parameter strings
+- `C`: Number of arguments
 
 ### The MOS executable format
 

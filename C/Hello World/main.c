@@ -10,10 +10,8 @@
 #include <stdio.h>
 
 // Parameters:
-// - argc: Argument count - currently always 1
+// - argc: Argument count
 // - argv: Pointer to the argument string - zero terminated, parameters separated by spaces
-//
-// TODO: Need to make this C compliant at some point
 //
 int main(int argc, char * argv[]) {
 	int	i;

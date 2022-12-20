@@ -5,8 +5,8 @@
 <files>
 <file filter-key="">.\init.asm</file>
 <file filter-key="">.\main.c</file>
-<file filter-key="">.\Hello_World_Debug.linkcmd</file>
-<file filter-key="">.\Hello_World_Release.linkcmd</file>
+<file filter-key="">.\Debug.linkcmd</file>
+<file filter-key="">.\Release.linkcmd</file>
 </files>
 
 <!-- configuration information -->
@@ -92,7 +92,7 @@
 <option name="directives" type="string" change-action="build"></option>
 <option name="createnew" type="boolean" change-action="build">false</option>
 <option name="exeform" type="string" change-action="build">OMF695,INTEL32</option>
-<option name="linkctlfile" type="string" change-action="build">.\Hello_World_Debug.linkcmd</option>
+<option name="linkctlfile" type="string" change-action="build">.\Debug.linkcmd</option>
 <option name="map" type="boolean" change-action="none">true</option>
 <option name="maxhexlen" type="integer" change-action="build">64</option>
 <option name="objlibmods" type="string" change-action="build"></option>
@@ -212,7 +212,7 @@
 <option name="directives" type="string" change-action="build"></option>
 <option name="createnew" type="boolean" change-action="build">false</option>
 <option name="exeform" type="string" change-action="build">OMF695,INTEL32</option>
-<option name="linkctlfile" type="string" change-action="build">.\Hello_World_Release.linkcmd</option>
+<option name="linkctlfile" type="string" change-action="build">.\Release.linkcmd</option>
 <option name="map" type="boolean" change-action="none">true</option>
 <option name="maxhexlen" type="integer" change-action="build">64</option>
 <option name="objlibmods" type="string" change-action="build"></option>

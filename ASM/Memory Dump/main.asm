@@ -2,9 +2,10 @@
 ; Title:	Memory Dump - Main
 ; Author:	Dean Belfield
 ; Created:	15/11/2022
-; Last Updated:	15/11/2022
+; Last Updated:	23/12/2022
 ;
 ; Modinfo:
+; 23/12/2022:	Added parameter parsing code, help text
 
 			.ASSUME	ADL = 0				
 
@@ -13,7 +14,7 @@
 
 			SEGMENT CODE
 			
-			XDEF	MAIN
+			XDEF	_main
 
 			XREF	ASC_TO_NUMBER
 			
@@ -24,24 +25,48 @@
 			
 ; Error: Invalid parameter
 ;
-ERR_INVALID_PARAM:	LD		HL, 19
-			RET.L
+_err_invalid_param:	LD		HL, 19			; The return code: Invalid parameters
+			RET
+
+; Help text
+;
+_help:			LD		HL, _help_text
+			CALL		Print_String
+			LD		HL, 0			; The return code: OK
+			RET
+			
+_help_text:		DB 		"AGON Memory Dump by Dean Belfield\n\r"
+			DB 		"Usage:\n\r";
+			DB 		"memdump address <length>\n\r", 0;
 
 ; The main routine
-; HLU: Address to parameters in string buffer (or 0 if no parameters)
+; IXU: argv - pointer to array of parameters
+;   C: argc - number of parameters
 ; Returns:
-;  HL: Error code
+;  HL: Error code, or 0 if OK
 ;
-MAIN:			CALL		ASC_TO_NUMBER		; Fetch the first parameter
-			JR		NC, ERR_INVALID_PARAM
-			PUSH.LIL	DE
-			CALL		ASC_TO_NUMBER		; Fetch the second parameter
-			POP.LIL		HL
-			JR		C, $F			
-			LD.LIL		DE, 256			; Default value if not specified
-$$:			CALL		Memory_Dump			
+_main:			LD		DE, 100h		; Default number of bytes to fetch
+			LD		A, C			; Fetch number of parameters
+			CP		2			; Is it less than 2?
+			JR		C, _help		; Then goto help
+			JR		Z, $F			; If it is equal to 2, then proceed with default number of bytes to fetch
+			CP		4			; Is it greater than or equal to 4?
+			JR		NC, _help		; Yes, so goto help
+;
+			LD.LIL		HL,(IX+6)		; HLU: Pointer to the length parameter string
+			CALL		ASC_TO_NUMBER		; DEU: length
+;			
+$$:			PUSH.LIL	DE			; Stack the length
+			LD.LIL		HL,(IX+3)		; HLU: Pointer to the start address parameter string
+			CALL		ASC_TO_NUMBER		; DEU: Start address
+			DB		5Bh			; Prefix for EX.L DE, HL (bodge- cannot get Zilog tools to compile this!)
+			EX		DE, HL
+;			
+			POP.LIL		DE			; Restore the length
+			CALL		Memory_Dump			
+;
 			LD		HL, 0			; Return with OK
-			RET.L
+			RET
 			
 ; Memory Dump
 ; HLU: Start of memory to dump

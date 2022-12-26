@@ -83,10 +83,11 @@ Memory_Dump:		CALL		Print_Hex24
 ;			
 Memory_Dump_1:		LD.LIL		A, (HL)
 			PUSH		AF
-			CP		' '
+			CP      	07Fh                	; DEL is non-printable
+			JR      	Z, Memory_Dump_1a
+			CP		' '                 	; As are all control chars.
 			JR		NC, Memory_Dump_2
-			LD		A, '.'
-;			
+Memory_Dump_1a:  	LD		A, '.'			; replace nonprintable chars with dot.			
 Memory_Dump_2:		LD		(IX+1), A
 			INC		IX
 			POP		AF

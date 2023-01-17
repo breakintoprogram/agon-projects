@@ -2,11 +2,13 @@
  * Title:			Disassembler - Main
  * Author:			Dean Belfield
  * Created:			18/12/2022
- * Last Updated:	18/12/2022
+ * Last Updated:	16/01/2023
  *
  * Based upon information in http://www.z80.info/decoding.htm 
  *
  * Modinfo:
+ * 04/01/2023:		Optimisations
+ * 16/01/2023:		Additional eZ80 instructions; SLP, RSMIX, IN0, OUT0 and the extra block instructions
  */
  
 #include <stdio.h>
@@ -58,15 +60,25 @@ const char * t_shift[] = { "HL", "IX", "IY" };
 const char * t_cc[] = { "NZ", "Z", "NC", "C", "PO", "PE", "P", "M" };
 const char * t_alu[] = { "ADD A,", "ADC A,", "SUB ", "SBC A,", "AND ", "XOR ", "OR ", "CP " };
 const char * t_rot[] = { "RLC", "RRC", "RL", "RR", "SLA", "SRA", "SLL", "SRL"};
+const char * t_bit[] = { "BIT", "RES", "SET" };
 const char * t_im[] = { "0", "0/1", "1", "2" };
-const char * t_bli[4][4] = {
-	{ "LID",  "CPI",  "INI",  "OUTI" },
-	{ "LDD",  "CPD",  "IND",  "OUTD" },
-	{ "LDIR", "CPIR", "INIR", "OTIR" },
-	{ "LDDR", "CPDR", "INDR", "OTDR" }
+const char * t_io[] = { "IN", "OUT" };
+const char * t_inc[] = { "INC", "DEC" };
+const char * t_bl1[4][5] = {
+	{ "LDI",  "CPI",  "INI",  "OUTI", "OUTI2" },
+	{ "LDD",  "CPD",  "IND",  "OUTD", "OUTD2" },
+	{ "LDIR", "CPIR", "INIR", "OTIR", "OTI2R" },
+	{ "LDDR", "CPDR", "INDR", "OTDR", "OTD2R" }
+};
+const char * t_bl2[4][3] = {
+	{ "INIM",  "OTIM",  "INI2"  },
+	{ "INDM",  "OTDM",  "IND2"  },
+	{ "INIMR", "OTIMR", "INI2R" },
+	{ "INDMR", "OTDMR", "IND2R" }
 };
 const char * t_o1[] = { "RLCA", "RRCA", "RLA", "RRA", "DAA", "CPL", "SCF", "CCF" };
 const char * t_o2[] = { "LD I,A", "LD R,A", "LD A,I", "LD A,R", "RRD", "RLD", "NOP", "NOP" };
+const char * t_o3[] = { "RET", "EXX", "JP (HL)", "LD SP,HL", "EX (SP),HL", "EX DE,HL", "DI", "EI" };
 
 // Parameters:
 // - argc: Argument count
@@ -130,7 +142,7 @@ void pad(int count, char c) {
 void help() {
 	printf("AGON eZ80 Disassembler by Dean Belfield\n\r");
 	printf("Usage:\n\r");
-	printf("disassemble <address> <length>\n\r");
+	printf("disassemble address length [adl]\n\r");
 }
 
 // Parse a number
@@ -161,7 +173,7 @@ int parseNumber(char * ptr, long * value) {
 // - address: Pointer to the address counter
 // - opcode: Pointer to the opcode structure
 // Returns:
-// - long: Word
+// - unsigned char: Word
 //
 unsigned char decodeByte(long * address, struct s_opcode * opcode) {
 	unsigned char b;
@@ -353,25 +365,16 @@ void decodeOperand(long * address, struct s_opcode * opcode) {
 				//
 				// Z=3: 16-bit increment/decrement
 				//
-				case 3: {				
-					if(q == 0) {
-						sprintf(t, "INC %s", t_rp[0][p]);
-					}
-					else {
-						sprintf(t, "DEC %s", t_rp[0][p]);
-					}
+				case 3: {		
+					sprintf(t, "%s %s", t_inc[q], t_rp[0][p]);
 				} break;
 				//
 				// Z=4: 8-bit increment
-				//
-				case 4: {				
-					sprintf(t, "INC %s", t_r[shift][y]);
-				} break;
-				//
 				// Z=5: 8-bit decrement
 				//
+				case 4:
 				case 5: {				
-					sprintf(t, "DEC %s", t_r[shift][y]);
+					sprintf(t, "%s %s", t_inc[z-4], t_r[shift][y]);
 				} break;
 				//
 				// Z=6: 8-bit load immediate
@@ -444,20 +447,7 @@ void decodeOperand(long * address, struct s_opcode * opcode) {
 						sprintf(t, "POP %s", t_rp[3+shift][p]);
 					}
 					else {
-						switch(p) {
-							case 0: {
-								strcpy(t, "RET");
-							} break;
-							case 1: {
-								strcpy(t, "EXX");
-							} break;
-							case 2: {
-								strcpy(t, "JP (HL)");								
-							} break;
-							case 3: {
-								strcpy(t, "LD SP,HL");
-							} break;
-						}
+						strcpy(t, t_o3[p]);
 					}
 					
 				} break;
@@ -484,17 +474,11 @@ void decodeOperand(long * address, struct s_opcode * opcode) {
 						case 3: {
 							sprintf(t, "IN (&%02X),A", decodeByte(address, opcode));
 						} break;
-						case 4: {
-							strcpy(t, "EX (SP),HL");
-						} break;
-						case 5: {
-							strcpy(t, "EX DE,HL");
-						} break;
-						case 6: {
-							strcpy(t, "DI");
-						} break;
-						case 7: {
-							strcpy(t, "EI");
+						//
+						// EX, DI, EI
+						//
+						default: {
+							strcpy(t, t_o3[y]);
 						} break;
 					}
 				} break;
@@ -566,19 +550,23 @@ void decodeOperandCB(long * address, struct s_opcode * opcode) {
 	t = opcode->text;
 	
 	opcode->byteData[opcode->count++] = b;
-
+	
 	switch(x) {
+		//
+		// X=0: Rotate and Shift Operands
+		//
 		case 0: {
-			sprintf(t, "%s %s", t_rot[y], t_r[0][z]);
+			sprintf(t, "%s %s", t_rot[y], t_r[0][z]);		
 		} break;
-		case 1: {
-			sprintf(t, "BIT %d,%s", y, t_r[0][z]);
-		} break;
-		case 2: {
-			sprintf(t, "RES %d,%s", y, t_r[0][z]);
-		} break;
+		//
+		// X=1: BIT
+		// X=2: RES
+		// X=3: SET
+		//
+	    case 1:
+		case 2:
 		case 3: {
-			sprintf(t, "SET %d,%s", y, t_r[0][z]);
+			sprintf(t, "%s %d,%s", t_bit[x-1], y, t_r[0][z]);
 		} break;
 	}
 }
@@ -607,7 +595,9 @@ void decodeOperandED(long * address, struct s_opcode * opcode) {
 	// MLT DE		0x5C = 0b01011100: x=1,y=3,z=4,p=1
 	// MTL HL		0x6C = 0b01101100: x=1,y=5,z=4,p=2
 	//
+	// SLP			0x76 = 0b01110110: x=1,y=6,z=6,p=3
 	// STMIX		0x7D = 0b01111101: x=1,y=7,z=5,p=3
+	// RSMIX		0x7E = 0b01111110: x=1,y=7,z=6,p=3
 	//
 	// TST A,n		0x64 = 0b01100100: x=1,y=4,z=4
 	//
@@ -628,13 +618,40 @@ void decodeOperandED(long * address, struct s_opcode * opcode) {
 	// LD DE,(HL)	0x17 = 0b00010111: x=0,y=2,z=7,p=1,q=0
 	// LD HL,(HL)	0x27 = 0b00100111: x=0,y=4,z=7,p=2,q=0
 	
+	// IN0 A,(N)	0x38 = 0b00111000: x=0,y=7,z=0
+	// IN0 B,(N)	0x00 = 0b00000000: x=0,y=0,z=0
+	// IN0 C,(N)	0x08 = 0b00001000: x=0,y=1,z=0
+	// IN0 D,(N)	0x10 = 0b00010000: x=0,y=2,z=0
+	// IN0 E,(N)	0x18 = 0b00011000: x=0,y=3,z=0
+	// IN0 H,(N)	0x20 = 0b00100000: x=0,y=4,z=0
+	// IN0 L,(N)	0x28 = 0b00101000: x=0,y=5,z=0
+	
+	// OUT0 (N),A	0x39 = 0b00111001: x=0,y=7,z=1
+	// OUT0 (N),B	0x01 = 0b00000001: x=0,y=0,z=1
+	// OUT0 (N),C	0x09 = 0b00001001: x=0,y=1,z=1
+	// OUT0 (N),D	0x11 = 0b00010001: x=0,y=2,z=1
+	// OUT0 (N),E	0x19 = 0b00011001: x=0,y=3,z=1
+	// OUT0 (N),H	0x21 = 0b00100001: x=0,y=4,z=1
+	// OUT0 (N),L	0x29 = 0b00101001: x=0,y=5,z=1
+	
+	// Plus the block instructions
+	
 	t = opcode->text;
 	
 	opcode->byteData[opcode->count++] = b;
 
 	switch(x) {
+		//
+		// X = 0
+		//
 		case 0: {
 			switch(z) {
+				case 0: {
+					sprintf(t, "IN0 %s,(&%02X)", t_r[0][y], decodeByte(address, opcode));
+				} break;
+				case 1: {
+					sprintf(t, "OUT0 (&%02X),%s", decodeByte(address, opcode), t_r[0][y]);
+				} break;
 				case 4: {
 					sprintf(t, "TST A,%s", t_r[0][y]);
 				} break;
@@ -648,22 +665,18 @@ void decodeOperandED(long * address, struct s_opcode * opcode) {
 				} break;
  			}
 		} break;
+		//
+		// X = 1
+		//
 		case 1: {
 			switch(z) {
-				case 0: {
-					if(y != 6) {
-						sprintf(t, "IN %s,(C)", t_r[0][y]);
-					}
-					else {
-						sprintf(t, "IN (C)");
-					}
-				} break;
+				case 0:
 				case 1: {
 					if(y != 6) {
-						sprintf(t, "OUT %s,(C)", t_r[0][y]);
+						sprintf(t, "%s %s,(C)", t_io[z], t_r[0][y]);
 					}
 					else {
-						sprintf(t, "OUT (C)");
+						sprintf(t, "%s (C)", t_io[z]);
 					}
 				} break;
 				case 2: {
@@ -715,20 +728,38 @@ void decodeOperandED(long * address, struct s_opcode * opcode) {
 					}
 				} break;
 				case 6: {
-					sprintf(t, "IM %s", t_im[y]);
+					switch(y) {
+						case 6: {
+							strcpy(t, "SLP");
+						} break;
+						case 7: {
+							strcpy(t, "RSMIX");
+						} break;
+						default: {
+							sprintf(t, "IM %s", t_im[y]);
+						} break;
+					}
 				} break;
 				case 7: {
 					strcpy(t, t_o2[y]);
 				} break;
 			}
 		} break;
+		//
+		// X = 2: Block operations
+		//
 		case 2: {
-			//
-			// Block instructions
-			//
-			if(z <= 3 && y >= 4) {
-				sprintf(t, "%s", t_bli[y-4][z]);
+			if(y < 4) {
+				if(z >= 2 && z <= 4) {
+					strcpy(t, t_bl2[y][z-2]);
+				}
 			}
+			else {
+				if(z <= 4) {
+					strcpy(t, t_bl1[y-4][z]);
+				}
+			}
+			
 		} break;
 	}
 }

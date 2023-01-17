@@ -37,7 +37,7 @@ The disassembler is not yet complete, and is missing a number of eZ80 instructio
 - PEA
 - TSTIO
 
-These will be added in future releases
+In addition, the long and short addressing modes have not been implemented. These will be added in future releases
 
 ### Compiling
 

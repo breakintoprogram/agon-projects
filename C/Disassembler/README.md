@@ -29,15 +29,7 @@ All values are displayed in hexadecimal
 
 ### Considerations
 
-The disassembler is not yet complete, and is missing a number of eZ80 instructions:
-
-- LD A,MB
-- LD MB,A
-- LEA
-- PEA
-- TSTIO
-
-In addition, the long and short addressing modes have not been implemented. These will be added in future releases
+The disassembler correctly decodes all Z80 and eZ80 instructions, yet is missing the addressing modes offered by the eZ80, to be added in a future release.
 
 ### Compiling
 

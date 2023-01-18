@@ -2,13 +2,14 @@
  * Title:			Disassembler - Main
  * Author:			Dean Belfield
  * Created:			18/12/2022
- * Last Updated:	16/01/2023
+ * Last Updated:	18/01/2023
  *
  * Based upon information in http://www.z80.info/decoding.htm 
  *
  * Modinfo:
  * 04/01/2023:		Optimisations
  * 16/01/2023:		Additional eZ80 instructions; SLP, RSMIX, IN0, OUT0 and the extra block instructions
+ * 18/01/2023:		Additional eZ80 instructions: LD A,MB/LD MB,A, TSTIO, LEA, PEA
  */
  
 #include <stdio.h>
@@ -48,13 +49,15 @@ const char * t_r[3][8] = {
 	{ "B", "C", "D", "E", "IXH", "IXL", "(IX)", "A" },
 	{ "B", "C", "D", "E", "IYH", "IYL", "(IY)", "A" }
 };
-const char * t_rp[6][4] = {
+const char * t_rp[8][4] = {
 	{ "BC", "DE", "HL", "SP" },
 	{ "BC", "DE", "IX", "SP" },
 	{ "BC", "DE", "IY", "SP" },
 	{ "BC", "DE", "HL", "AF" },
 	{ "BC", "DE", "IX", "AF" },
-	{ "BC", "DE", "IY", "AF" }
+	{ "BC", "DE", "IY", "AF" },
+	{ "BC", "DE", "HL", "IX" },
+	{ "BC", "DE", "HL", "IY" }
 };
 const char * t_shift[] = { "HL", "IX", "IY" };
 const char * t_cc[] = { "NZ", "Z", "NC", "C", "PO", "PE", "P", "M" };
@@ -634,6 +637,28 @@ void decodeOperandED(long * address, struct s_opcode * opcode) {
 	// OUT0 (N),H	0x21 = 0b00100001: x=0,y=4,z=1
 	// OUT0 (N),L	0x29 = 0b00101001: x=0,y=5,z=1
 	
+	// LD MB, A		0x6D = 0b01101101: x=1,y=5,z=5
+	// LD A, MB		0x6E = 0b01101110: x=1,y=5,z=6
+	
+	// TSTIO n		0x74 = 0b01110100: x=1,y=6,z=4
+
+	// LEA BC, IX+d	0x02 = 0b00000010: x=0,y=0,z=2
+	// LEA DE, IX+d	0x12 = 0b00010010: x=0,y=2,z=2
+	// LEA HL, IX+d	0x22 = 0b00100010: x=0,y=4,z=2
+	// LEA IX, IX+d	0X32 = 0b00110010: x=0,y=6,z=2
+		
+	// LEA BC, IY+d	0x03 = 0b00000011: x=0,y=0,z=3
+	// LEA DE, IY+d	0x13 = 0b00010011: x=0,y=2,z=3
+	// LEA HL, IY+d	0x23 = 0b00100011: x=0,y=4,z=3
+	// LEA IY, IY+d 0X33 = 0b00110011: x=0,y=6,z=3
+
+	// LEA IX, IY+d	0X54 = 0b01010100: x=1,y=2,z=4
+	// LEA IY, IX+d 0X55 = 0b01010101: x=1,y=2,z=5
+	
+	// PEA IX+d		0x65 = 0b01100101: x=1,y=4,z=5
+	// PEA IY-d		0x66 = 0b01100110: x=y,y=4,z=6
+
+
 	// Plus the block instructions
 	
 	t = opcode->text;
@@ -651,6 +676,12 @@ void decodeOperandED(long * address, struct s_opcode * opcode) {
 				} break;
 				case 1: {
 					sprintf(t, "OUT0 (&%02X),%s", decodeByte(address, opcode), t_r[0][y]);
+				} break;
+				case 2: {
+					sprintf(t, "LEA %s,IX%+d",  t_rp[6][y>>1], (char)decodeByte(address, opcode));
+				} break;
+				case 3: {
+					sprintf(t, "LEA %s,IX%+d",  t_rp[7][y>>1], (char)decodeByte(address, opcode));
 				} break;
 				case 4: {
 					sprintf(t, "TST A,%s", t_r[0][y]);
@@ -703,6 +734,9 @@ void decodeOperandED(long * address, struct s_opcode * opcode) {
 						case 1: {
 							strcpy(t, "MLT BC");
 						} break;
+						case 2: {
+							sprintf(t, "LEA IX,IY%+d", (char)decodeByte(address, opcode));
+						} break;
 						case 3: {
 							strcpy(t, "MLT DE");
 						} break;
@@ -712,12 +746,24 @@ void decodeOperandED(long * address, struct s_opcode * opcode) {
 						case 5: {
 							strcpy(t, "MLT HL");
 						} break;
+						case 6: {
+							sprintf(t, "TSTIO &%02X", decodeByte(address, opcode));
+						} break;
 					}
 				} break;
 				case 5: {
 					switch(y) {
 						case 1: {
 							strcpy(t, "RETI");
+						} break;
+						case 2: {
+							sprintf(t, "LEA IY,IX%+d", (char)decodeByte(address, opcode));
+						} break;
+						case 4: {
+							sprintf(t, "PEA IX%+d", (char)decodeByte(address, opcode));
+						} break;
+						case 5: {
+							strcpy(t, "LD MB, A");
 						} break;
 						case 7: {
 							strcpy(t, "STMIX");
@@ -729,6 +775,12 @@ void decodeOperandED(long * address, struct s_opcode * opcode) {
 				} break;
 				case 6: {
 					switch(y) {
+						case 4: {
+							sprintf(t, "PEA IY%+d", (char)decodeByte(address, opcode));
+						} break;						
+						case 5: {
+							strcpy(t, "LD A, MB");
+						} break;
 						case 6: {
 							strcpy(t, "SLP");
 						} break;

@@ -27,10 +27,6 @@ The disassembly is spread across 4 columns:
 
 All values are displayed in hexadecimal
 
-### Considerations
-
-The disassembler correctly decodes all Z80 and eZ80 instructions, yet is missing the addressing modes offered by the eZ80, to be added in a future release.
-
 ### Compiling
 
 - The paths in the link files (Debug.linkcmd and Release.linkcmd) need to be modified to reflect where the tools are located on your hard drive before this will compile.

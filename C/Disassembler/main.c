@@ -2,7 +2,7 @@
  * Title:			Disassembler - Main
  * Author:			Dean Belfield
  * Created:			18/12/2022
- * Last Updated:	21/01/2023
+ * Last Updated:	27/01/2023
  *
  * Based upon information in http://www.z80.info/decoding.htm 
  *
@@ -11,12 +11,7 @@
  * 16/01/2023:		Additional eZ80 instructions; SLP, RSMIX, IN0, OUT0 and the extra block instructions
  * 18/01/2023:		Additional eZ80 instructions: LD A,MB/LD MB,A, TSTIO, LEA, PEA
  * 21/01/2023:		Added eZ80 addressing modes, fixed LD, ADD, INC, DEC for IX and IY; fixed column widths, t_alu format
- *
- * Known Bugs:
- *
- * - LD SP,n decoding as LD AF,n
- * - LD SP,IX/Y decoding as LD SP,HL
- * - 16-bit word decode does not display correctly on first line, i.e JP n
+ * 27/01/2023:		Fixed default ADL mode, LD SP, EX (SP) and JP (rr) for IX and IY
  */
  
 #include <stdio.h>
@@ -48,7 +43,7 @@ extern int errno;				// errno - used by stdlib
 extern int putch(int ch);		// In init.asm
 extern int getch(void);
 
-long	adl = 1;				// Default ADL mode = 1
+long	adl;					// ADL mode
 
 // Lookup tables
 //
@@ -89,7 +84,6 @@ const char * t_bl2[4][3] = {
 };
 const char * t_o1[] = { "RLCA", "RRCA", "RLA", "RRA", "DAA", "CPL", "SCF", "CCF" };
 const char * t_o2[] = { "LD I,A", "LD R,A", "LD A,I", "LD A,R", "RRD", "RLD", "NOP", "NOP" };
-const char * t_o3[] = { "RET", "EXX", "JP (HL)", "LD SP,HL", "EX (SP),HL", "EX DE,HL", "DI", "EI" };
 const char * t_am[] = { "", ".SIS", ".LIS", ".SIL", ".LIL" };
 
 // Parameters:
@@ -102,6 +96,8 @@ int main(int argc, char * argv[]) {
 	long	count;
 	int		i;
 	char	c;
+	
+	adl	= 1;	// Default ADL mode
 	
 	if(argc < 3 || argc > 4) {
 		help();
@@ -351,10 +347,10 @@ void decodeOperand(long * address, struct s_opcode * opcode) {
 				//
 				case 1: {				
 					if(q == 0) {
-						sprintf(t, "LD%s %s,&%06X", t_am[am], t_rp[3+shift][p], decodeWord(address, opcode));
+						sprintf(t, "LD%s %s,&%06X", t_am[am], t_rp[shift][p], decodeWord(address, opcode));
 					}
 					else {
-						sprintf(t, "ADD%s %s,%s", t_am[am], t_rp[3+shift][2], t_rp[0][p]);
+						sprintf(t, "ADD%s %s,%s", t_am[am], t_rp[shift][2], t_rp[0][p]);
 					}
 				} break;
 				//
@@ -492,7 +488,20 @@ void decodeOperand(long * address, struct s_opcode * opcode) {
 						sprintf(t, "POP%s %s", t_am[am], t_rp[3+shift][p]);
 					}
 					else {
-						sprintf(t, "%s%s", t_o3[p], t_am[am]);
+						switch(p) {
+							case 0: {
+								sprintf(t, "RET%s", t_am[am]);
+							} break;
+							case 1: {
+								strcpy(t, "EXX");
+							} break;
+							case 2: {
+								sprintf(t, "JP%s (%s)", t_am[am], t_rp[shift][2]);
+							} break;
+							case 3: {
+								sprintf(t, "LD%s SP,%s", t_am[am], t_rp[shift][2]);
+							} break;
+						}
 					}
 					
 				} break;
@@ -519,11 +528,17 @@ void decodeOperand(long * address, struct s_opcode * opcode) {
 						case 3: {
 							sprintf(t, "IN (&%02X),A", decodeByte(address, opcode));
 						} break;
-						//
-						// EX, DI, EI
-						//
-						default: {
-							strcpy(t, t_o3[y]);
+						case 4: {
+							sprintf(t, "EX (SP),%s", t_rp[shift][2]);
+						} break;
+						case 5: {
+							strcpy(t, "EX DE,HL");
+						} break;
+						case 6: {
+							strcpy(t, "DI");
+						} break;
+						case 7: {
+							strcpy(t, "EI");
 						} break;
 					}
 				} break;

@@ -2,10 +2,11 @@
 ; Title:	Memory Dump - Main
 ; Author:	Dean Belfield
 ; Created:	15/11/2022
-; Last Updated:	23/12/2022
+; Last Updated:	23/03/2023
 ;
 ; Modinfo:
 ; 23/12/2022:	Added parameter parsing code, help text
+; 23/03/2023:	Fixed to work with MOS 1.03
 
 			.ASSUME	ADL = 0				
 
@@ -98,7 +99,10 @@ Memory_Dump_2:		LD		(IX+1), A
 			JR		Z, Memory_Dump_3
 			DJNZ		Memory_Dump_1
 			CALL		Memory_Dump_5			
-			MOSCALL		mos_getkey		; Check for ESC
+			PUSH		IX 			; Check for ESC
+			MOSCALL		mos_sysvars		; IX: Address of system variables
+			LD.LIL		A, (IX + sysvar_keyascii)
+			POP		IX 
 			CP		1Bh
 			JR 		NZ, Memory_Dump
 			RET

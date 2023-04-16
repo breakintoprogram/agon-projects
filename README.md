@@ -14,6 +14,8 @@ Each project is a self-contained executable and can be compiled and tested using
 
 The resultant Intel Hex file can be converted to an AGON executable bin file by using a hex2bin utility. If the command is to be executed as a star command from the command line, then the bin file must be copied to a mos directory in the root directory of the SD card.
 
+For your convenience, I've included precompiled copies of completed projects in the BIN folder of this project.
+
 - `ASM`:
 	- `Hello World 16`: A simple example of a Z80 executable (16-bit Z80)
 	- `Hello World 24`: A simple example of an ADL executable (24-bit Z80)

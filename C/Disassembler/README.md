@@ -1,4 +1,4 @@
-# Hello Wocld
+# Disassembler
 
 Usage: `disassemble <start address> <length> <adl mode>`
 
@@ -26,27 +26,6 @@ The disassembly is spread across 4 columns:
 - Mnemonics The disassembled instruction
 
 All values are displayed in hexadecimal
-
-### Considerations
-
-The disassembler is not yet complete, and is missing a number of eZ80 instructions:
-
-- IN0
-- IND2, IND2R, INDM, INDMR
-- INI2, INI2R, INIM, INIMR
-- LD A,MB
-- LD MB,A
-- LEA
-- OTD2R, OTDM, OTDR, OTDMR
-- OTI2R, OTIM, OTIR, OTIMR
-- OUT0
-- OUTI2
-- PEA
-- RSMIX
-- SLP
-- TSTIO
-
-These will be added in future releases
 
 ### Compiling
 

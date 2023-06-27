@@ -1,4 +1,4 @@
-<project type="Executable" project-type="Assembly Only" configuration="Release" created-by="d:5.3.0:19052909" modified-by="d:5.3.0:23020901" ZDSII="ZDSII - eZ80Acclaim! 5.3.5 (Build 23020901)">
+<project type="Executable" project-type="Assembly Only" configuration="Debug" created-by="d:5.3.0:19052909" modified-by="d:5.3.0:23020901" ZDSII="ZDSII - eZ80Acclaim! 5.3.5 (Build 23020901)">
 <cpu>eZ80F92</cpu>
 
 <!-- file information -->
@@ -16,8 +16,8 @@
 <tool name="Assembler">
 <options>
 <option name="define" type="string" change-action="assemble">_EZ80ACCLAIM!=1,_SIMULATE=1</option>
-<option name="include" type="string" change-action="assemble">..\..\..\MOS\src</option>
-<option name="list" type="boolean" change-action="none">true</option>
+<option name="include" type="string" change-action="assemble">..\..\..\agon"-"mos\src</option>
+<option name="list" type="boolean" change-action="none">false</option>
 <option name="listmac" type="boolean" change-action="none">false</option>
 <option name="name" type="boolean" change-action="none">true</option>
 <option name="pagelen" type="integer" change-action="none">0</option>
@@ -109,8 +109,8 @@ COPY LORAM RAM</option>
 <tool name="Assembler">
 <options>
 <option name="define" type="string" change-action="assemble">_EZ80ACCLAIM!=1,_SIMULATE=1</option>
-<option name="include" type="string" change-action="assemble">..\..\..\MOS\src</option>
-<option name="list" type="boolean" change-action="none">true</option>
+<option name="include" type="string" change-action="assemble">..\..\..\agon"-"mos\src</option>
+<option name="list" type="boolean" change-action="none">false</option>
 <option name="listmac" type="boolean" change-action="none">false</option>
 <option name="name" type="boolean" change-action="none">true</option>
 <option name="pagelen" type="integer" change-action="none">0</option>
@@ -205,13 +205,6 @@ COPY LORAM RAM</option>
 
 <!-- breakpoint information -->
 <breakpoints>
-<breakpoint temporary="false" enabled="false" >
-<line-number>0</line-number>
-<pathname></pathname>
-<address>262207</address>
-<command></command>
-<preserve-type>1</preserve-type>
-</breakpoint>
 </breakpoints>
 
 </project>

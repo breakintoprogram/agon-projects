@@ -2,7 +2,7 @@
  * Title:			Disassembler - Main
  * Author:			Dean Belfield
  * Created:			18/12/2022
- * Last Updated:	27/01/2023
+ * Last Updated:		30/03/2023
  *
  * Based upon information in http://www.z80.info/decoding.htm 
  *
@@ -12,6 +12,7 @@
  * 18/01/2023:		Additional eZ80 instructions: LD A,MB/LD MB,A, TSTIO, LEA, PEA
  * 21/01/2023:		Added eZ80 addressing modes, fixed LD, ADD, INC, DEC for IX and IY; fixed column widths, t_alu format
  * 27/01/2023:		Fixed default ADL mode, LD SP, EX (SP) and JP (rr) for IX and IY
+ * 30/03/2023:		Fixed decode bug in LD [rp],(Mmn)
  */
  
 #include <stdio.h>
@@ -776,7 +777,7 @@ void decodeOperandED(long * address, struct s_opcode * opcode) {
 						sprintf(t, "LD (&%06X),%s", decodeWord(address, opcode), t_rp[0][p]);
 					}
 					else {
-						sprintf(t, "LD %s,(&%06X)", decodeWord(address, opcode), t_rp[0][p]);
+						sprintf(t, "LD %s,(&%06X)", t_rp[0][p], decodeWord(address, opcode));
 					}
 				} break;
 				case 4: {
